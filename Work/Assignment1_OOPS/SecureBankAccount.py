@@ -1,26 +1,28 @@
 from BankAccount import BankAccount
 
 class SecureBankAccount(BankAccount):
-    def __init__(self, account_number, balance=0, security_features=None):
+    def __init__(self, account_number, balance=0, password=None, transaction_limit=10000):
         super().__init__(account_number, balance)
-        self.security_features = security_features if security_features else []
+        self.password = password
+        self.transaction_limit = transaction_limit
 
     def deposit(self, amount):
-        # Implement security checks before depositing
         if self._security_check():
             self._balance += amount
         else:
             raise PermissionError("Security check failed")
 
     def withdraw(self, amount):
-        # Implement security checks before withdrawing
+        if amount > self.transaction_limit:
+            raise ValueError("Transaction exceeds limit")
         if self._security_check() and self._balance >= amount:
             self._balance -= amount
         else:
             raise PermissionError("Security check failed or insufficient funds")
 
     def transfer(self, amount, target_account):
-        # Implement security checks before transferring
+        if amount > self.transaction_limit:
+            raise ValueError("Transaction exceeds limit")
         if self._security_check() and self._balance >= amount:
             self._balance -= amount
             target_account.deposit(amount)
@@ -28,5 +30,5 @@ class SecureBankAccount(BankAccount):
             raise PermissionError("Security check failed or insufficient funds")
 
     def _security_check(self):
-        # Placeholder for actual security checks (e.g., multi-factor authentication)
-        return True
+        input_password = input(f"Enter password for account {self._account_number}: ")
+        return input_password == self.password
